@@ -1,7 +1,7 @@
 # .NET toolchain for the C# plugin
 
 Assembles the .NET runtime, the Roslyn C# compiler and a launcher that run on an Android device. The C#
-plugin (`samples/dotnet-plugin`) packages the result.
+plugin (this repository) packages the result.
 
 ```
 ./build-dotnet-android.sh                   # arm64-v8a

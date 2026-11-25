@@ -1,4 +1,5 @@
-rootProject.name = "codeassist-dotnet-plugin"
+// The APK file names come from this (`dotnet-plugin-<abi>-release.apk`), which the release workflow expects.
+rootProject.name = "dotnet-plugin"
 
 pluginManagement {
     repositories {
