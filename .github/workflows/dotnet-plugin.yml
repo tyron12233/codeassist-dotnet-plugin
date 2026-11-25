@@ -1,7 +1,7 @@
 name: C# plugin release
 
-# Builds the C# plugin (samples/dotnet-plugin) as one release-signed APK per ABI and attaches them to a CodeAssist
-# release as CodeAssist-CSharp-Plugin-<version>-<abi>.apk.
+# Builds the C# plugin as one release-signed APK per ABI and attaches them to a release
+# of this repository as CodeAssist-CSharp-Plugin-<version>-<abi>.apk.
 #
 # The .NET runtime and compiler inside it are assembled here, by tools/dotnet-toolchain/build-dotnet-android.sh:
 # Microsoft's published packages, each checked against the SHA-256 recorded in that script, plus OpenSSL and
@@ -79,7 +79,7 @@ jobs:
           echo "kotlin.incremental=false" >> ~/.gradle/gradle.properties
 
       - name: Run the plugin's unit tests
-        run: ./gradlew :samples:dotnet-plugin:testDebugUnitTest --console=plain --stacktrace
+        run: ./gradlew :testDebugUnitTest --console=plain --stacktrace
 
       # The keystore is written outside the checkout and only for the build step's lifetime. One build per ABI:
       # the runtime's native libraries are in the asset archive, so an APK serves exactly one ABI.
@@ -96,15 +96,15 @@ jobs:
           trap 'rm -f "$RELEASE_STORE_FILE"' EXIT
           mkdir -p "$RUNNER_TEMP/apks"
           for abi in $ABIS; do
-            ./gradlew :samples:dotnet-plugin:assembleRelease "-Pdotnet.abi=$abi" --console=plain --stacktrace
-            cp samples/dotnet-plugin/build/outputs/apk/release/dotnet-plugin-release.apk "$RUNNER_TEMP/apks/$abi.apk"
+            ./gradlew :assembleRelease "-Pdotnet.abi=$abi" --console=plain --stacktrace
+            cp build/outputs/apk/release/dotnet-plugin-release.apk "$RUNNER_TEMP/apks/$abi.apk"
           done
 
       - name: Check and name the APKs
         id: apks
         run: |
           apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
-          version="$(sed -n 's/^version = "\(.*\)"/\1/p' samples/dotnet-plugin/src/main/res/raw/codeassist_plugin.toml | head -1)"
+          version="$(sed -n 's/^version = "\(.*\)"/\1/p' src/main/res/raw/codeassist_plugin.toml | head -1)"
           [[ -n "$version" ]] || { echo "no version in codeassist_plugin.toml" >&2; exit 1; }
           mkdir -p dist
           for abi in $ABIS; do
